@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#172033">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Caderno do Treinador</title>
+<style>
+:root{--ink:#172033;--muted:#687386;--bg:#f4f6f8;--card:#fff;--line:#e5e9ef;--accent:#172033}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+header{background:var(--ink);color:#fff;padding:18px 16px 14px;position:sticky;top:0;z-index:10;box-shadow:0 2px 10px #0002}
+header h1{font-size:21px;margin:0}header p{margin:4px 0 0;color:#d9deea;font-size:12px}
+main{max-width:760px;margin:auto;padding:12px 12px 30px}.toolbar{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+button,select{font:inherit;border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 11px;color:var(--ink)}
+button{cursor:pointer}.weektitle{font-weight:800;font-size:18px;flex:1}.days{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:12px}
+.day{background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 2px;text-align:center;font-size:12px;font-weight:750}
+.day.active{background:var(--ink);color:#fff;border-color:var(--ink)}.day small{font-weight:500;opacity:.8}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+h2{font-size:19px;margin:0 0 3px}.sub{color:var(--muted);font-size:13px;margin-bottom:12px}
+.group{border:1px solid var(--line);border-radius:12px;margin:9px 0;overflow:hidden}
+.ghead{display:flex;align-items:center;justify-content:space-between;padding:11px 12px;background:#fafbfc;font-weight:800}
+.gbody{padding:12px;font-size:14px;line-height:1.48}.tag{font-size:10px;border-radius:20px;background:#e9edf3;padding:4px 7px;font-weight:700}
+.label{font-weight:800;margin-top:9px}.label:first-child{margin-top:0}.note{background:#fff8e6;border-left:4px solid #e5a11a;padding:10px 11px;border-radius:8px;font-size:13px;margin-top:10px}
+.empty{text-align:center;color:var(--muted);padding:30px 10px}.legend{font-size:12px;color:var(--muted);line-height:1.5}
+.install{display:none;width:100%;margin:0 0 10px;background:var(--ink);color:#fff;border:0}
+</style>
+</head>
+<body>
+<header><h1>🏃 Caderno do Treinador</h1><p>AJL · Época 2026/27 · consulta rápida dos planos</p></header>
+<main>
+<button id="installBtn" class="install">📲 Instalar no ecrã principal</button>
+<div class="toolbar">
+  <button id="prev">‹</button><div class="weektitle" id="weekTitle"></div><button id="next">›</button>
+</div>
+<div class="days" id="days"></div>
+<div id="content"></div>
+</main>
+
+<script>
+const groups=[
+ ["🟢","Meio-fundo / Fundo","MF"],
+ ["🔵","Velocidade / Barreiras","VEL"],
+ ["🟠","Saltos","SAL"],
+ ["🟣","Lançamentos","LAN"],
+ ["🟡","Provas combinadas","COM"],
+ ["⚪","Geral / Novos atletas","GER"]
+];
+
+const weeks=[{
+ start:"2026-09-08", label:"Semana 1 · 8–13 setembro 2026", phase:"Preparação geral",
+ days:{
+  "2026-09-08":{
+   name:"Terça-feira · 8 setembro",title:"Início da época · preparação geral",
+   note:"Primeira semana deliberadamente generalista. O conteúdo será ajustado à presença e ao nível dos atletas. Prioridades: mobilidade, coordenação, técnica de corrida, velocidade, resistência e preparação física geral.",
+   common:"Apresentação dos grupos + mobilidade geral + coordenação + técnica de corrida + preparação física geral.",
+   items:{
+    MF:["15' corrida contínua fácil","20' corrida contínua fácil, sem preocupação com ritmo","Técnica de corrida + mobilidade","Circuito geral · 2 séries"],
+    VEL:["10' corrida fácil + mobilidade","Técnica de corrida + 6 × 60 m progressivos, recuperação completa","Coordenação geral","Circuito geral · 2 séries"],
+    SAL:["Corrida fácil + mobilidade + coordenação","Exercícios gerais de impulsão e coordenação","Técnica básica de corrida e saltos","Circuito geral · 2 séries"],
+    LAN:["Corrida fácil + mobilidade articular","Coordenação geral + preparação técnica","Exercícios técnicos gerais","Circuito geral · 2 séries"],
+    COM:["Corrida fácil + mobilidade","Coordenação geral + técnica de corrida","Introdução geral às diferentes capacidades","Circuito geral · 2 séries"],
+    GER:["15' atividade aeróbia fácil","Mobilidade + coordenação + técnica de corrida","Circuito geral · 2 séries","Jogos/exercícios coordenativos"]
+   }
+  },
+  "2026-09-09":{
+   name:"Quarta-feira · 9 setembro",title:"Capacidades coordenativas e velocidade",
+   note:"Manter intensidade moderada. Nesta fase interessa sobretudo recuperar sensações, avaliar níveis e ensinar a execução correta.",
+   common:"Aquecimento progressivo + mobilidade + coordenação.",
+   items:{
+    MF:["15' corrida fácil","6 × 100 m progressivos, recuperação completa","Técnica de corrida","Força geral · 2 séries"],
+    VEL:["12' corrida + mobilidade","8 × 40–60 m, técnica e aceleração controlada","Recuperação completa entre repetições","Força geral · 2 séries"],
+    SAL:["Corrida + mobilidade","Coordenação de impulsão + exercícios de salto geral","Técnica básica","Força geral · 2 séries"],
+    LAN:["Corrida + mobilidade","Lançamentos técnicos com implementos adequados ao nível","Coordenação","Força geral · 2 séries"],
+    COM:["Corrida + mobilidade","Circuito coordenativo + 4–6 acelerações curtas","Técnica geral","Força geral · 2 séries"],
+    GER:["Corrida/atividade aeróbia 15–20'","Circuito coordenativo","4–6 acelerações curtas","Força geral · 2 séries"]
+   }
+  },
+  "2026-09-10":{
+   name:"Quinta-feira · 10 setembro",title:"Resistência e preparação física geral",
+   note:"Treino ainda sem especialização elevada. A carga deve ser ajustada ao nível individual.",
+   common:"Aquecimento + mobilidade dinâmica + técnica de corrida.",
+   items:{
+    MF:["15' corrida fácil","25–30' corrida contínua confortável","Mobilidade","Core + força geral"],
+    VEL:["10–12' corrida fácil","15–20' corrida contínua fácil","Mobilidade + coordenação","Core + força geral"],
+    SAL:["10–15' corrida fácil","20' atividade aeróbia fácil","Mobilidade + coordenação","Core + força geral"],
+    LAN:["10–15' corrida fácil","20' atividade aeróbia fácil","Mobilidade articular","Core + força geral"],
+    COM:["15' atividade aeróbia fácil","20–25' corrida/atividade contínua","Mobilidade","Circuito geral"],
+    GER:["20–25' atividade aeróbia fácil","Mobilidade + coordenação","Circuito geral","Alongamentos/mobilidade"]
+   }
+  },
+  "2026-09-11":{
+   name:"Sexta-feira · 11 setembro",title:"Síntese semanal · técnica e velocidade",
+   note:"Fechar a primeira semana com carga controlada. Recolher impressões dos atletas e identificar necessidades para individualizar a semana seguinte.",
+   common:"Aquecimento geral + mobilidade + técnica.",
+   items:{
+    MF:["15' corrida fácil","4–6 × 100 m progressivos","Técnica de corrida","Mobilidade + força geral leve"],
+    VEL:["10–15' corrida + mobilidade","6 × 60 m progressivos","Coordenação","Força geral leve"],
+    SAL:["Corrida + mobilidade","Técnica de corrida + exercícios de impulsão","Coordenação","Força geral leve"],
+    LAN:["Corrida + mobilidade","Técnica específica introdutória","Coordenação","Força geral leve"],
+    COM:["Corrida + mobilidade","Sequência geral de corrida, coordenação e velocidade","Técnica","Força geral leve"],
+    GER:["15–20' atividade aeróbia fácil","Jogos/exercícios coordenativos","4–6 acelerações curtas","Mobilidade + força geral leve"]
+   }
+  }
+ }
+}];
+
+let week=0, dayIndex=0;
+const dayKeys=Object.keys(weeks[0].days);
+function render(){
+ const w=weeks[week], key=dayKeys[dayIndex], d=w.days[key];
+ document.getElementById("weekTitle").textContent=w.label;
+ document.getElementById("days").innerHTML=dayKeys.map((k,i)=>{
+   const dt=new Date(k+"T12:00:00"); const wd=["DOM","SEG","TER","QUA","QUI","SEX","SÁB"][dt.getDay()];
+   return `<div class="day ${i===dayIndex?'active':''}" onclick="dayIndex=${i};render()">${wd}<br><small>${dt.getDate()}</small></div>`;
+ }).join("");
+ let html=`<section class="card"><h2>${d.name}</h2><div class="sub">${d.title}</div>`;
+ html+=`<div class="note">${d.note}</div>`;
+ for(const [emoji,name,code] of groups){
+   const a=d.items[code]; if(!a) continue;
+   html+=`<div class="group"><div class="ghead"><span>${emoji} ${name}</span><span class="tag">${code}</span></div><div class="gbody">`;
+   a.forEach((x,i)=>html+=`<div class="label">${["Aquecimento / preparação","Parte principal","Técnica / complementar","Força / mobilidade"][i]||"Conteúdo"}</div>${x}`);
+   html+=`</div></div>`;
+ }
+ html+=`<div class="legend"><b>Base comum:</b> ${d.common}</div></section>`;
+ document.getElementById("content").innerHTML=html;
+}
+document.getElementById("prev").onclick=()=>{dayIndex=Math.max(0,dayIndex-1);render()};
+document.getElementById("next").onclick=()=>{dayIndex=Math.min(dayKeys.length-1,dayIndex+1);render()};
+render();
+
+let deferredPrompt;
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;document.getElementById("installBtn").style.display="block"});
+document.getElementById("installBtn").onclick=async()=>{if(deferredPrompt){deferredPrompt.prompt();deferredPrompt=null}};
+if("serviceWorker" in navigator) window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js"));
+</script>
+</body></html>
